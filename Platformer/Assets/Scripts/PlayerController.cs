@@ -4,10 +4,11 @@ public class PlayerController : MonoBehaviour
 {
     public float walkSpeed;
     public float jumpForce;
+    public AudioClip coinSound;
 
     private Rigidbody rb;
     private Collider col;
-
+    private AudioSource audioSource;
     private bool pressedJump = false;
     private Vector3 playerSize;
 
@@ -15,6 +16,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
+        audioSource = GetComponent<AudioSource>();
         playerSize = col.bounds.size;
     }
 
@@ -38,8 +40,9 @@ public class PlayerController : MonoBehaviour
                 Vector3 jumpVector = new Vector3(0f, jumpAxis * jumpForce, 0f);
                 rb.AddForce(jumpVector, ForceMode.VelocityChange);
             }
-            
-        } else
+
+        }
+        else
         {
             pressedJump = false;
         }
@@ -67,5 +70,25 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = new Vector3(moveHorizontal, 0f, moveVertical);
         Vector3 newPosition = transform.position + movement;
         rb.MovePosition(newPosition);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Coin"))
+        {
+            audioSource.clip = coinSound;
+            audioSource.Play();
+            GameManager.instance.IncreaseScore(1);
+            Destroy(other.gameObject);
+        }
+        else if (other.CompareTag("Enemy"))
+        {
+
+            GameManager.instance.ResetGame();
+        }
+        else if (other.CompareTag("Goal"))
+        {
+            GameManager.instance.NextLevel();
+        }
     }
 }

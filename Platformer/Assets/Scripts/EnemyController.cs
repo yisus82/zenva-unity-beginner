@@ -18,10 +18,11 @@ public class EnemyController : MonoBehaviour
         float factor = direction == -1 ? 2f : 1f;
         float movementY = speed * factor * direction * Time.deltaTime;
         float newY = transform.position.y + movementY;
-        if(Mathf.Abs(newY - initialPosition.y) > rangeY)
+        if (Mathf.Abs(newY - initialPosition.y) > rangeY)
         {
             direction *= -1;
-        } else
+        }
+        else
         {
             transform.position += new Vector3(0f, movementY, 0f);
         }
