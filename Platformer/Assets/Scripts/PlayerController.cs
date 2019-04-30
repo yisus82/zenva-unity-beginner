@@ -4,6 +4,7 @@ public class PlayerController : MonoBehaviour
 {
     public float walkSpeed;
     public float jumpForce;
+    public float minY;
     public AudioClip coinSound;
 
     private Rigidbody rb;
@@ -11,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private AudioSource audioSource;
     private bool pressedJump = false;
     private Vector3 playerSize;
+    private Vector3 cameraOffset;
 
     private void Start()
     {
@@ -18,12 +20,23 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<Collider>();
         audioSource = GetComponent<AudioSource>();
         playerSize = col.bounds.size;
+        cameraOffset = transform.position - Camera.main.transform.position;
     }
 
     private void FixedUpdate()
     {
+        CheckFall();
         WalkHandler();
         JumpHandler();
+        SetCameraPosition();
+    }
+
+    private void CheckFall()
+    {
+        if (transform.position.y <= minY)
+        {
+            GameManager.instance.GameOver();
+        }
     }
 
     private void JumpHandler()
@@ -65,11 +78,22 @@ public class PlayerController : MonoBehaviour
 
     private void WalkHandler()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal") * walkSpeed * Time.fixedDeltaTime;
-        float moveVertical = Input.GetAxis("Vertical") * walkSpeed * Time.fixedDeltaTime;
-        Vector3 movement = new Vector3(moveHorizontal, 0f, moveVertical);
+        float hAxis = Input.GetAxis("Horizontal");
+        float vAxis = Input.GetAxis("Vertical");
+        Vector3 movement = new Vector3(hAxis * walkSpeed * Time.fixedDeltaTime, 0f, vAxis * walkSpeed * Time.fixedDeltaTime);
         Vector3 newPosition = transform.position + movement;
         rb.MovePosition(newPosition);
+
+        if (hAxis != 0 || vAxis != 0)
+        {
+            Vector3 direction = new Vector3(hAxis, 0, vAxis);
+            rb.rotation = Quaternion.LookRotation(direction);
+        }
+    }
+
+    private void SetCameraPosition()
+    {
+        Camera.main.transform.position = transform.position - cameraOffset;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -84,7 +108,7 @@ public class PlayerController : MonoBehaviour
         else if (other.CompareTag("Enemy"))
         {
 
-            GameManager.instance.ResetGame();
+            GameManager.instance.GameOver();
         }
         else if (other.CompareTag("Goal"))
         {

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class GameManager : MonoBehaviour
     public int maxLevel = 2;
 
     public static GameManager instance;
+
+    private Text scoreText;
 
     private void Awake()
     {
@@ -28,17 +31,16 @@ public class GameManager : MonoBehaviour
     {
         score += points;
 
-        print("New score: " + score);
+        UpdateScore();
 
         if (score > highScore)
         {
             highScore = score;
-            print("New high score: " + highScore);
         }
 
     }
 
-    public void ResetGame()
+    public void RestartGame()
     {
         score = 0;
         level = 1;
@@ -49,7 +51,7 @@ public class GameManager : MonoBehaviour
     {
         if (level == maxLevel)
         {
-            Time.timeScale = 0;
+            SceneManager.LoadScene("Game Over");
         }
         else
         {
@@ -62,5 +64,20 @@ public class GameManager : MonoBehaviour
     public void LoadLevel(int level)
     {
         SceneManager.LoadScene("Level" + level);
+    }
+
+    public void SetScoreText(Text scoreText)
+    {
+        this.scoreText = scoreText;
+    }
+
+    public void UpdateScore()
+    {
+        scoreText.text = "Score: " + score;
+    }
+
+    public void GameOver()
+    {
+        SceneManager.LoadScene("Game Over");
     }
 }
